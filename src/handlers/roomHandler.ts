@@ -22,6 +22,12 @@ const roomHandler = (socket: Socket) => {
             rooms[roomId].push(peerId);
             socket.join(roomId);
 
+            // Whenever a new user joins, from frontend we will emit event ready
+            // then from the server, we will emit an event to all the clients connnection that a new user has joined
+            socket.on("ready", () => {
+                socket.to(roomId).emit("user-joined", {peerId});
+            });
+
             // Notify all users in the room about the new user
             socket.emit("get-users", {
                 participants: rooms[roomId],
